@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SkyCast Weather Forecast - Live Updates</title>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#1e3a8a" />
+    <link rel="apple-touch-icon" href="/icon-512.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+
+      // Proactively remove any "Arena" watermarks or popups
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === 1) { // Element node
+              const text = node.innerText || '';
+              if (text.toLowerCase().includes('arena')) {
+                node.remove();
+              }
+            }
+          });
+        });
+      });
+
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      // Immediate cleanup
+      document.querySelectorAll('*').forEach(el => {
+        if (el.innerText && el.innerText.toLowerCase().includes('arena') && el.tagName !== 'SCRIPT' && el.tagName !== 'STYLE') {
+          // If it's a small element like a banner or link, hide it
+          if (el.innerText.length < 50) {
+            el.style.display = 'none';
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
